@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בדיקות אינטגרציה - מערכת ניהול גבייה</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px;
+            font-weight: bold;
+        }
+        .test-passed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-failed {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .console-output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .progress-bar-container {
+            height: 30px;
+            margin: 10px 0;
+        }
+        .test-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .test-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .stat-item {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .file-upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            background-color: #f8f9fa;
+            border-color: #0056b3;
+        }
+        .file-upload-area.drag-over {
+            background-color: #e3f2fd;
+            border-color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="text-center mb-4">
+            <h1 class="display-4">
+                <i class="fas fa-vial text-primary"></i>
+                בדיקות אינטגרציה
+            </h1>
+            <p class="lead">מערכת ניהול גבייה מתקדמת - Collections-Web</p>
+        </div>
+
+        <!-- Test Statistics -->
+        <div class="test-stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalTests">0</div>
+                <div>סה"כ בדיקות</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number text-success" id="passedTests">0</div>
+                <div>עברו בהצלחה</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number text-danger" id="failedTests">0</div>
+                <div>נכשלו</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number text-warning" id="pendingTests">0</div>
+                <div>ממתינות</div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar">
+                    0%
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Controls -->
+        <div class="test-controls">
+            <button class="btn btn-primary btn-lg me-2" onclick="startAllTests()">
+                <i class="fas fa-play"></i> הפעל כל הבדיקות
+            </button>
+            <button class="btn btn-secondary btn-lg me-2" onclick="clearResults()">
+                <i class="fas fa-broom"></i> נקה תוצאות
+            </button>
+            <button class="btn btn-info btn-lg" onclick="exportResults()">
+                <i class="fas fa-download"></i> ייצא דוח
+            </button>
+        </div>
+
+        <!-- File Upload Area for Testing -->
+        <div class="test-section">
+            <h3><i class="fas fa-upload"></i> בדיקת טעינת קבצים</h3>
+            <div class="file-upload-area" id="testFileUpload">
+                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                <h4>גרור קובץ Excel לכאן לבדיקה</h4>
+                <p>או לחץ לבחירת קובץ (.xlsx, .xls)</p>
+                <input type="file" id="testFileInput" accept=".xlsx,.xls" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('testFileInput').click()">
+                    בחר קובץ
+                </button>
+            </div>
+            <div id="fileTestResults" class="mt-3"></div>
+        </div>
+
+        <!-- Module Tests -->
+        <div class="test-section">
+            <h3><i class="fas fa-cogs"></i> בדיקות מודולים</h3>
+            <div id="moduleTestResults">
+                <div class="test-result test-pending">DebtAnalysisEngine - ממתין</div>
+                <div class="test-result test-pending">DashboardManager - ממתין</div>
+                <div class="test-result test-pending">FileHandler - ממתין</div>
+                <div class="test-result test-pending">AlertSystem - ממתין</div>
+                <div class="test-result test-pending">ChartManager - ממתין</div>
+                <div class="test-result test-pending">DataTablesManager - ממתין</div>
+            </div>
+        </div>
+
+        <!-- Integration Tests -->
+        <div class="test-section">
+            <h3><i class="fas fa-link"></i> בדיקות אינטגרציה</h3>
+            <div id="integrationTestResults">
+                <div class="test-result test-pending">קריאת קובץ Excel - ממתין</div>
+                <div class="test-result test-pending">עיבוד נתונים - ממתין</div>
+                <div class="test-result test-pending">יצירת גרפים - ממתין</div>
+                <div class="test-result test-pending">טעינת טבלאות - ממתין</div>
+                <div class="test-result test-pending">מערכת התראות - ממתין</div>
+                <div class="test-result test-pending">יצוא נתונים - ממתין</div>
+            </div>
+        </div>
+
+        <!-- Browser Compatibility Tests -->
+        <div class="test-section">
+            <h3><i class="fas fa-globe"></i> בדיקות תאימות דפדפן</h3>
+            <div id="browserTestResults">
+                <div class="test-result test-pending">Chrome - ממתין</div>
+                <div class="test-result test-pending">Firefox - ממתין</div>
+                <div class="test-result test-pending">Safari - ממתין</div>
+                <div class="test-result test-pending">Edge - ממתין</div>
+            </div>
+        </div>
+
+        <!-- Performance Tests -->
+        <div class="test-section">
+            <h3><i class="fas fa-tachometer-alt"></i> בדיקות ביצועים</h3>
+            <div id="performanceTestResults">
+                <div class="test-result test-pending">זמן טעינת מודולים - ממתין</div>
+                <div class="test-result test-pending">זמן עיבוד נתונים - ממתין</div>
+                <div class="test-result test-pending">זמן רינדור גרפים - ממתין</div>
+                <div class="test-result test-pending">זיכרון בשימוש - ממתין</div>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="test-section">
+            <h3><i class="fas fa-terminal"></i> פלט קונסול</h3>
+            <div class="console-output" id="consoleOutput">
+                <div class="text-muted">מוכן לבדיקות...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Required Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Load System Modules -->
+    <script src="../assets/js/debt-engine.js"></script>
+    <script src="../assets/js/file-handler.js"></script>
+    <script src="../assets/js/alert-system.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/chart-config.js"></script>
+    <script src="../assets/js/datatables-config.js"></script>
+
+    <script>
+        // Test Framework
+        class IntegrationTestSuite {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+                this.currentTest = 0;
+                this.console = document.getElementById('consoleOutput');
+                
+                this.log('🚀 מערכת בדיקות אינטגרציה מוכנה');
+            }
+
+            log(message) {
+                const timestamp = new Date().toLocaleTimeString('he-IL');
+                const logEntry = `[${timestamp}] ${message}`;
+                this.console.innerHTML += `<div>${logEntry}</div>`;
+                this.console.scrollTop = this.console.scrollHeight;
+                console.log(logEntry);
+            }
+
+            addTest(name, testFunction, category = 'general') {
+                this.tests.push({
+                    name,
+                    testFunction,
+                    category,
+                    status: 'pending',
+                    result: null,
+                    error: null,
+                    duration: 0
+                });
+            }
+
+            async runTest(testIndex) {
+                const test = this.tests[testIndex];
+                if (!test) return;
+
+                this.log(`🔄 מתחיל בדיקה: ${test.name}`);
+                const startTime = performance.now();
+
+                try {
+                    test.status = 'running';
+                    const result = await test.testFunction();
+                    const endTime = performance.now();
+                    
+                    test.duration = Math.round(endTime - startTime);
+                    test.result = result;
+                    test.status = result ? 'passed' : 'failed';
+                    
+                    if (result) {
+                        this.log(`✅ בדיקה עברה: ${test.name} (${test.duration}ms)`);
+                    } else {
+                        this.log(`❌ בדיקה נכשלה: ${test.name} (${test.duration}ms)`);
+                    }
+                } catch (error) {
+                    const endTime = performance.now();
+                    test.duration = Math.round(endTime - startTime);
+                    test.error = error.message;
+                    test.status = 'failed';
+                    this.log(`❌ שגיאה בבדיקה ${test.name}: ${error.message} (${test.duration}ms)`);
+                }
+
+                this.updateUI();
+            }
+
+            async runAllTests() {
+                this.log('🚀 מתחיל סדרת בדיקות מקיפה...');
+                
+                for (let i = 0; i < this.tests.length; i++) {
+                    await this.runTest(i);
+                    await this.sleep(100); // Short delay between tests
+                }
+
+                this.log('🏁 כל הבדיקות הושלמו!');
+                this.generateSummary();
+            }
+
+            updateUI() {
+                const stats = this.calculateStats();
+                
+                document.getElementById('totalTests').textContent = stats.total;
+                document.getElementById('passedTests').textContent = stats.passed;
+                document.getElementById('failedTests').textContent = stats.failed;
+                document.getElementById('pendingTests').textContent = stats.pending;
+                
+                const progress = stats.total > 0 ? Math.round(((stats.passed + stats.failed) / stats.total) * 100) : 0;
+                const progressBar = document.getElementById('progressBar');
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = progress + '%';
+                
+                // Update test result displays
+                this.updateTestResults();
+            }
+
+            updateTestResults() {
+                const categories = {
+                    'module': 'moduleTestResults',
+                    'integration': 'integrationTestResults',
+                    'browser': 'browserTestResults',
+                    'performance': 'performanceTestResults'
+                };
+
+                Object.entries(categories).forEach(([category, elementId]) => {
+                    const element = document.getElementById(elementId);
+                    if (!element) return;
+
+                    const categoryTests = this.tests.filter(test => test.category === category);
+                    element.innerHTML = categoryTests.map(test => {
+                        const statusClass = test.status === 'passed' ? 'test-passed' : 
+                                          test.status === 'failed' ? 'test-failed' : 'test-pending';
+                        const statusText = test.status === 'passed' ? 'עבר' : 
+                                         test.status === 'failed' ? 'נכשל' : 'ממתין';
+                        return `<div class="test-result ${statusClass}">${test.name} - ${statusText}</div>`;
+                    }).join('');
+                });
+            }
+
+            calculateStats() {
+                const stats = {
+                    total: this.tests.length,
+                    passed: this.tests.filter(t => t.status === 'passed').length,
+                    failed: this.tests.filter(t => t.status === 'failed').length,
+                    pending: this.tests.filter(t => t.status === 'pending').length
+                };
+                return stats;
+            }
+
+            generateSummary() {
+                const stats = this.calculateStats();
+                const passRate = stats.total > 0 ? Math.round((stats.passed / stats.total) * 100) : 0;
+                
+                this.log(`📊 סיכום בדיקות:`);
+                this.log(`   • סה"כ בדיקות: ${stats.total}`);
+                this.log(`   • עברו: ${stats.passed} (${passRate}%)`);
+                this.log(`   • נכשלו: ${stats.failed}`);
+                this.log(`   • ממתינות: ${stats.pending}`);
+                
+                if (stats.failed > 0) {
+                    this.log(`⚠️ בדיקות שנכשלו:`);
+                    this.tests.filter(t => t.status === 'failed').forEach(test => {
+                        this.log(`   • ${test.name}: ${test.error || 'לא עבר'}`);
+                    });
+                }
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            clearResults() {
+                this.tests.forEach(test => {
+                    test.status = 'pending';
+                    test.result = null;
+                    test.error = null;
+                    test.duration = 0;
+                });
+                
+                this.console.innerHTML = '<div class="text-muted">מוכן לבדיקות...</div>';
+                this.updateUI();
+                this.log('🧹 תוצאות נוקו');
+            }
+
+            exportResults() {
+                const results = {
+                    timestamp: new Date().toISOString(),
+                    summary: this.calculateStats(),
+                    tests: this.tests.map(test => ({
+                        name: test.name,
+                        category: test.category,
+                        status: test.status,
+                        duration: test.duration,
+                        error: test.error
+                    }))
+                };
+
+                const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `integration-test-results-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.log('📥 תוצאות יוצאו בהצלחה');
+            }
+        }
+
+        // Initialize Test Suite
+        const testSuite = new IntegrationTestSuite();
+
+        // Add Module Tests
+        testSuite.addTest('DebtAnalysisEngine Loading', async () => {
+            return typeof DebtAnalysisEngine !== 'undefined' && DebtAnalysisEngine.prototype.constructor === DebtAnalysisEngine;
+        }, 'module');
+
+        testSuite.addTest('DashboardManager Loading', async () => {
+            return typeof DashboardManager !== 'undefined';
+        }, 'module');
+
+        testSuite.addTest('FileHandler Loading', async () => {
+            return typeof FileHandler !== 'undefined';
+        }, 'module');
+
+        testSuite.addTest('AlertSystem Loading', async () => {
+            return typeof AlertSystem !== 'undefined';
+        }, 'module');
+
+        testSuite.addTest('ChartManager Loading', async () => {
+            return typeof ChartManager !== 'undefined';
+        }, 'module');
+
+        testSuite.addTest('DataTablesManager Loading', async () => {
+            return typeof DataTablesManager !== 'undefined';
+        }, 'module');
+
+        // Add Integration Tests
+        testSuite.addTest('DebtAnalysisEngine Initialization', async () => {
+            const engine = new DebtAnalysisEngine();
+            return engine && engine.riskCategories && engine.overdueThresholds;
+        }, 'integration');
+
+        testSuite.addTest('Risk Level Calculation', async () => {
+            const engine = new DebtAnalysisEngine();
+            const testDebtor = { amount: 30000 };
+            const riskLevel = engine.calculateRiskLevel(testDebtor);
+            return riskLevel === 'HIGH';
+        }, 'integration');
+
+        testSuite.addTest('Overdue Category Calculation', async () => {
+            const engine = new DebtAnalysisEngine();
+            const testDebtor = { days: 200 };
+            const category = engine.calculateOverdueCategory(testDebtor);
+            return category === 'SEVERE';
+        }, 'integration');
+
+        testSuite.addTest('International Case Detection', async () => {
+            const engine = new DebtAnalysisEngine();
+            const testDebtor = { name: 'KHMER FRESH MILK' };
+            const isInternational = engine.isInternationalCase(testDebtor);
+            return isInternational === true;
+        }, 'integration');
+
+        testSuite.addTest('Header Normalization', async () => {
+            const engine = new DebtAnalysisEngine();
+            const normalized = engine.normalizeHeader('שם הלקוח');
+            return normalized === 'name';
+        }, 'integration');
+
+        testSuite.addTest('Value Processing', async () => {
+            const engine = new DebtAnalysisEngine();
+            const processed = engine.processValue('12,345.67');
+            return processed === 12345.67;
+        }, 'integration');
+
+        // Add Browser Compatibility Tests
+        testSuite.addTest('Local Storage Support', async () => {
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                return value === 'value';
+            } catch (e) {
+                return false;
+            }
+        }, 'browser');
+
+        testSuite.addTest('File API Support', async () => {
+            return typeof FileReader !== 'undefined' && typeof File !== 'undefined';
+        }, 'browser');
+
+        testSuite.addTest('IndexedDB Support', async () => {
+            return typeof indexedDB !== 'undefined';
+        }, 'browser');
+
+        testSuite.addTest('Web Workers Support', async () => {
+            return typeof Worker !== 'undefined';
+        }, 'browser');
+
+        // Add Performance Tests
+        testSuite.addTest('Module Loading Time', async () => {
+            const start = performance.now();
+            const engine = new DebtAnalysisEngine();
+            const end = performance.now();
+            return (end - start) < 100; // Should load in under 100ms
+        }, 'performance');
+
+        testSuite.addTest('Memory Usage Check', async () => {
+            if (performance.memory) {
+                const initialMemory = performance.memory.usedJSHeapSize;
+                const engine = new DebtAnalysisEngine();
+                // Create some test data
+                for (let i = 0; i < 1000; i++) {
+                    engine.processValue(`test${i}`);
+                }
+                const finalMemory = performance.memory.usedJSHeapSize;
+                const memoryDiff = finalMemory - initialMemory;
+                return memoryDiff < 10000000; // Should use less than 10MB
+            }
+            return true; // Skip if performance.memory not available
+        }, 'performance');
+
+        // Global Functions
+        function startAllTests() {
+            testSuite.runAllTests();
+        }
+
+        function clearResults() {
+            testSuite.clearResults();
+        }
+
+        function exportResults() {
+            testSuite.exportResults();
+        }
+
+        // File Upload Testing
+        document.getElementById('testFileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const resultsDiv = document.getElementById('fileTestResults');
+            resultsDiv.innerHTML = '<div class="text-info">🔄 בודק קובץ...</div>';
+
+            try {
+                const engine = new DebtAnalysisEngine();
+                await engine.loadExcelFile(file);
+                const data = await engine.loadDebtorsData();
+                const analysis = engine.performGlobalAnalysis();
+
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ הקובץ נטען בהצלחה!</h5>
+                        <ul>
+                            <li><strong>שם הקובץ:</strong> ${file.name}</li>
+                            <li><strong>גודל:</strong> ${(file.size / 1024).toFixed(2)} KB</li>
+                            <li><strong>רשומות:</strong> ${data.length}</li>
+                            <li><strong>סה"כ חובות:</strong> ₪${analysis.totalAmount.toLocaleString('he-IL')}</li>
+                            <li><strong>מקרים קריטיים:</strong> ${analysis.byRiskLevel.CRITICAL.count}</li>
+                        </ul>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5>❌ שגיאה בטעינת הקובץ</h5>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Drag and Drop for File Upload
+        const uploadArea = document.getElementById('testFileUpload');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const fileInput = document.getElementById('testFileInput');
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Initialize UI
+        testSuite.updateUI();
+        testSuite.log('🎯 מערכת בדיקות מוכנה לפעולה');
+    </script>
+</body>
+</html>
