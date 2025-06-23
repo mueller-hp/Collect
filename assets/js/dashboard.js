@@ -612,4 +612,4 @@ if (typeof window !== 'undefined') {
     window.dashboardManager = dashboardManager;
 }
 
-export { DashboardManager, dashboardManager };
+// Export statements removed for browser compatibility

@@ -476,4 +476,4 @@ if (typeof window !== 'undefined') {
     window.alertSystem = alertSystem;
 }
 
-export { AlertSystem, alertSystem };
+// Export statements removed for browser compatibility

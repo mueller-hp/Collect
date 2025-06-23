@@ -405,4 +405,4 @@ if (typeof window !== 'undefined') {
     window.dataTablesManager = dataTablesManager;
 }
 
-export { DataTablesManager, dataTablesManager };
+// Export statements removed for browser compatibility
