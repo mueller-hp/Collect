@@ -21,11 +21,21 @@ class DashboardManager {
      */
     initializeCollectionsTable() {
         const tableElement = document.getElementById('collections-table');
-        if (!tableElement) return;
+        if (!tableElement) {
+            console.log("📋 Collections table element not found - skipping initialization");
+            return;
+        }
+
+        // Check if jQuery and DataTables are available
+        if (typeof $ === 'undefined' || typeof $.fn.DataTable === 'undefined') {
+            console.log("📋 jQuery or DataTables not available - skipping table initialization");
+            return;
+        }
 
         const tableData = this.prepareCollectionsTableData();
 
-        this.tables.collectionsTable = $(tableElement).DataTable({
+        try {
+            this.tables.collectionsTable = $(tableElement).DataTable({
             data: tableData,
             columns: [
                 { 
@@ -96,6 +106,10 @@ class DashboardManager {
                 console.log('✅ Collections table initialized');
             }
         });
+        } catch (error) {
+            console.log('❌ DataTable initialization error:', error.message);
+            console.log('📋 Falling back to simple table display');
+        }
     }
 
     /**
@@ -615,7 +629,16 @@ class DashboardManager {
         this.analysisResults = analysis;
         this.debtData = analysis; // Fix: Set debtData for table access
         this.updateKPICards(analysis);
-        this.initializeCollectionsTable();
+        
+        // Delay table initialization to ensure DOM is ready
+        setTimeout(() => {
+            try {
+                this.initializeCollectionsTable();
+                console.log("📋 Collections table initialized successfully");
+            } catch (error) {
+                console.log("⚠️ Collections table initialization skipped:", error.message);
+            }
+        }, 500);
         
         // Initialize alerts only if AlertSystem is available
         if (typeof AlertSystem !== 'undefined') {
