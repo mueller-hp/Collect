@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick Module Test</title>
+</head>
+<body>
+    <h1>Quick JavaScript Module Test</h1>
+    <div id="results"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="assets/js/debt-engine.js"></script>
+    <script src="assets/js/file-handler.js"></script>
+    <script src="assets/js/alert-system.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/chart-config.js"></script>
+    <script src="assets/js/datatables-config.js"></script>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function test(name, condition) {
+            const status = condition ? '✅ PASS' : '❌ FAIL';
+            results.innerHTML += `<p>${status} - ${name}</p>`;
+            console.log(`${status} - ${name}`);
+        }
+
+        // Test module loading
+        test('DebtAnalysisEngine loaded', typeof DebtAnalysisEngine !== 'undefined');
+        test('FileHandler loaded', typeof FileHandler !== 'undefined');
+        test('AlertSystem loaded', typeof AlertSystem !== 'undefined');
+        test('DashboardManager loaded', typeof DashboardManager !== 'undefined');
+        test('ChartManager loaded', typeof ChartManager !== 'undefined');
+        test('DataTablesManager loaded', typeof DataTablesManager !== 'undefined');
+
+        // Test class instantiation
+        try {
+            const engine = new DebtAnalysisEngine();
+            test('DebtAnalysisEngine instantiation', engine instanceof DebtAnalysisEngine);
+        } catch (e) {
+            test('DebtAnalysisEngine instantiation', false);
+            console.error('DebtAnalysisEngine error:', e);
+        }
+
+        try {
+            const alertSystem = new AlertSystem();
+            test('AlertSystem instantiation', alertSystem instanceof AlertSystem);
+            test('AlertSystem has config', alertSystem.config && alertSystem.config.enabled !== undefined);
+            test('AlertSystem has state', alertSystem.state && alertSystem.state.alertHistory !== undefined);
+        } catch (e) {
+            test('AlertSystem instantiation', false);
+            console.error('AlertSystem error:', e);
+        }
+
+        try {
+            const fileHandler = new FileHandler();
+            test('FileHandler instantiation', fileHandler instanceof FileHandler);
+        } catch (e) {
+            test('FileHandler instantiation', false);
+            console.error('FileHandler error:', e);
+        }
+
+        // Test alert system functionality
+        try {
+            const alertSys = new AlertSystem();
+            const testAlert = alertSys.createAlert('SYSTEM', 'Test Alert', 'Testing alert creation');
+            test('Alert creation', testAlert && testAlert.id);
+            test('Alert in history', alertSys.state.alertHistory.length > 0);
+        } catch (e) {
+            test('Alert creation', false);
+            console.error('Alert creation error:', e);
+        }
+
+        results.innerHTML += '<h2>Test Complete!</h2>';
+        console.log('All tests completed');
+    </script>
+</body>
+</html>

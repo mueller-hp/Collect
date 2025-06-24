@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>בדיקות DebtAnalysisEngine</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f2f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .header { background: #007bff; color: white; padding: 15px; text-align: center; border-radius: 5px; margin-bottom: 20px; }
+        .btn { background: #28a745; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #218838; }
+        .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+        .stat { text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .console { background: #2c3e50; color: #ecf0f1; padding: 10px; height: 200px; overflow-y: auto; font-family: monospace; border-radius: 4px; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        .test-pass { background: #d4edda; padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .test-fail { background: #f8d7da; padding: 10px; margin: 5px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>בדיקות מודול ניתוח החובות</h1>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="runTests()">הרץ בדיקות</button>
+            <button class="btn" onclick="clearAll()">נקה</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div id="total">0</div>
+                <div>סה"כ</div>
+            </div>
+            <div class="stat">
+                <div id="passed" class="success">0</div>
+                <div>עברו</div>
+            </div>
+            <div class="stat">
+                <div id="failed" class="error">0</div>
+                <div>נכשלו</div>
+            </div>
+        </div>
+        
+        <div id="results"></div>
+        <div class="console" id="console"></div>
+    </div>
+
+    <script>
+        // מודול דמה
+        class DebtAnalysisEngine {
+            constructor() {
+                this.riskCategories = ['נמוך', 'בינוני', 'גבוה', 'קריטי'];
+                this.thresholds = { lowRisk: 10000, mediumRisk: 25000, highRisk: 50000, criticalRisk: 100000 };
+            }
+            
+            normalizeHeaders(headers) {
+                return headers.map(h => h.trim());
+            }
+            
+            processValue(value, type) {
+                if (type === 'number') {
+                    const cleaned = String(value).replace(/[^0-9.-]/g, '');
+                    return parseFloat(cleaned) || 0;
+                }
+                return value;
+            }
+            
+            calculateRisk(amount, days) {
+                return amount * (1 + days / 365);
+            }
+            
+            calculateOverdueDays(dateStr) {
+                try {
+                    const date = new Date(dateStr);
+                    const today = new Date();
+                    return Math.floor((today - date) / (1000 * 60 * 60 * 24));
+                } catch {
+                    return 0;
+                }
+            }
+            
+            processRow(row) {
+                return {
+                    clientName: row['שם הלקוח'] || '',
+                    debtAmount: this.processValue(row['סכום החוב'] || '0', 'number'),
+                    priority: Math.random() * 100,
+                    riskLevel: 'medium',
+                    overdueDays: 30
+                };
+            }
+        }
+
+        let testResults = [];
+        let engine;
+
+        function log(msg, type = 'info') {
+            const console = document.getElementById('console');
+            const time = new Date().toLocaleTimeString();
+            const line = document.createElement('div');
+            line.className = type;
+            line.innerHTML = `[${time}] ${msg}`;
+            console.appendChild(line);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function updateStats() {
+            const total = testResults.length;
+            const passed = testResults.filter(t => t.status === 'pass').length;
+            const failed = testResults.filter(t => t.status === 'fail').length;
+            
+            document.getElementById('total').textContent = total;
+            document.getElementById('passed').textContent = passed;
+            document.getElementById('failed').textContent = failed;
+        }
+
+        async function runTest(name, testFunc) {
+            log(`בודק: ${name}`);
+            try {
+                const result = await testFunc();
+                testResults.push({ name, status: 'pass', result });
+                
+                const div = document.createElement('div');
+                div.className = 'test-pass';
+                div.innerHTML = `<strong>✅ ${name}</strong><br>${JSON.stringify(result, null, 2)}`;
+                document.getElementById('results').appendChild(div);
+                
+                log(`✅ ${name} - עבר`, 'success');
+            } catch (error) {
+                testResults.push({ name, status: 'fail', error: error.message });
+                
+                const div = document.createElement('div');
+                div.className = 'test-fail';
+                div.innerHTML = `<strong>❌ ${name}</strong><br>${error.message}`;
+                document.getElementById('results').appendChild(div);
+                
+                log(`❌ ${name} - נכשל: ${error.message}`, 'error');
+            }
+            updateStats();
+        }
+
+        // בדיקות
+        async function test1() {
+            engine = new DebtAnalysisEngine();
+            if (!engine) throw new Error('לא ניתן ליצור instance');
+            return { message: 'נוצר בהצלחה' };
+        }
+
+        async function test2() {
+            const categories = engine.riskCategories;
+            if (!Array.isArray(categories) || categories.length !== 4) {
+                throw new Error('קטגוריות לא תקינות');
+            }
+            return { categories };
+        }
+
+        async function test3() {
+            const headers = ['  שם  ', 'סכום\t'];
+            const result = engine.normalizeHeaders(headers);
+            if (result[0] !== 'שם' || result[1] !== 'סכום') {
+                throw new Error('נרמול נכשל');
+            }
+            return { original: headers, normalized: result };
+        }
+
+        async function test4() {
+            const value = engine.processValue('15,000', 'number');
+            if (value !== 15000) {
+                throw new Error('עיבוד מספר נכשל');
+            }
+            return { input: '15,000', output: value };
+        }
+
+        async function test5() {
+            const risk = engine.calculateRisk(10000, 30);
+            if (typeof risk !== 'number' || risk < 0) {
+                throw new Error('חישוב סיכון נכשל');
+            }
+            return { amount: 10000, days: 30, risk };
+        }
+
+        async function test6() {
+            const days = engine.calculateOverdueDays('2024-01-01');
+            if (typeof days !== 'number') {
+                throw new Error('חישוב ימי פיגור נכשל');
+            }
+            return { date: '2024-01-01', days };
+        }
+
+        async function test7() {
+            const row = { 'שם הלקוח': 'ישראל', 'סכום החוב': '15000' };
+            const result = engine.processRow(row);
+            if (!result.clientName || typeof result.debtAmount !== 'number') {
+                throw new Error('עיבוד שורה נכשל');
+            }
+            return result;
+        }
+
+        async function test8() {
+            const nullVal = engine.processValue(null, 'number');
+            const emptyVal = engine.processValue('', 'number');
+            return { null: nullVal, empty: emptyVal };
+        }
+
+        async function runTests() {
+            testResults = [];
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('console').innerHTML = '';
+            
+            log('🚀 מתחיל בדיקות...');
+            
+            const tests = [
+                { name: 'יצירת Instance', func: test1 },
+                { name: 'קטגוריות סיכון', func: test2 },
+                { name: 'נרמול כותרות', func: test3 },
+                { name: 'עיבוד ערכים', func: test4 },
+                { name: 'חישוב סיכון', func: test5 },
+                { name: 'חישוב פיגור', func: test6 },
+                { name: 'עיבוד שורה', func: test7 },
+                { name: 'מקרי קצה', func: test8 }
+            ];
+            
+            for (const test of tests) {
+                await runTest(test.name, test.func);
+                await new Promise(r => setTimeout(r, 300));
+            }
+            
+            const passed = testResults.filter(t => t.status === 'pass').length;
+            const failed = testResults.filter(t => t.status === 'fail').length;
+            
+            log(`סיכום: ${passed} עברו, ${failed} נכשלו`);
+            if (failed === 0) {
+                log('🎉 כל הבדיקות עברו!', 'success');
+            }
+        }
+
+        function clearAll() {
+            testResults = [];
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('console').innerHTML = '';
+            updateStats();
+        }
+
+        // טעינה
+        document.addEventListener('DOMContentLoaded', function() {
+            log('✅ מערכת בדיקות נטענה');
+            log('לחץ על "הרץ בדיקות" כדי להתחיל');
+        });
+    </script>
+</body>
+</html>

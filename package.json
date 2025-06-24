@@ -1,0 +1,61 @@
+{
+  "name": "collections-web-system",
+  "version": "2.0.0",
+  "description": "מערכת ניהול גבייה מתקדמת - אפליקציית WEB client-side לניתוח חובות והתראות אוטומטיות",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'פתח את index.html בדפדפן או העלה ל-GitHub Pages'",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'אפליקציית client-side - לא נדרש build'",
+    "deploy": "echo 'העלה לGitHub Pages או שרת סטטי'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gil100/Collections.git"
+  },
+  "keywords": [
+    "collections",
+    "debt-management",
+    "excel-analysis",
+    "hebrew",
+    "rtl",
+    "client-side",
+    "github-pages",
+    "financial-reports",
+    "javascript",
+    "bootstrap"
+  ],
+  "author": "Advanced Collections System",
+  "license": "MIT",
+  "homepage": "https://gil100.github.io/Collections/",
+  "technologies": {
+    "frontend": [
+      "HTML5",
+      "CSS3",
+      "JavaScript ES6+",
+      "Bootstrap 5",
+      "Chart.js",
+      "DataTables",
+      "SheetJS"
+    ],
+    "features": [
+      "Excel file reading (SheetJS)",
+      "Hebrew RTL support",
+      "Interactive charts and tables",
+      "Browser notifications",
+      "Local storage",
+      "Responsive design",
+      "GitHub Pages compatible"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
