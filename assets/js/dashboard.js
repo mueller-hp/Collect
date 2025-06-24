@@ -596,10 +596,60 @@ class DashboardManager {
         `;
         document.head.appendChild(style);
     }
+
+    /**
+     * Initialize dashboard with analysis data
+     */
+    initializeWithData(analysis) {
+        this.analysisResults = analysis;
+        this.updateKPICards(analysis);
+        this.initializeCollectionsTable();
+        this.initializeAlerts();
+        console.log("📊 Dashboard initialized with data:", analysis);
+    }
+
+    /**
+     * Update KPI cards with real data
+     */
+    updateKPICards(analysis) {
+        if (!analysis) return;
+
+        // Update Total Debts
+        const totalAmountElement = document.querySelector('#total-collections .kpi-value');
+        if (totalAmountElement && analysis.totalAmount) {
+            totalAmountElement.textContent = `₪${analysis.totalAmount.toLocaleString('he-IL')}`;
+        }
+
+        // Update High Risk Debts
+        const highRiskElement = document.querySelector('#high-risk-debts .kpi-value');
+        if (highRiskElement && analysis.byRiskLevel && analysis.byRiskLevel.HIGH) {
+            highRiskElement.textContent = analysis.byRiskLevel.HIGH.count || 0;
+        }
+
+        // Update Overdue Payments
+        const overdueElement = document.querySelector('#overdue-payments .kpi-value');
+        if (overdueElement && analysis.byOverdueCategory && analysis.byOverdueCategory.SEVERE) {
+            overdueElement.textContent = analysis.byOverdueCategory.SEVERE.count || 0;
+        }
+
+        // Update Collection Rate (calculate percentage)
+        const collectionRateElement = document.querySelector('#collection-rate .kpi-value');
+        if (collectionRateElement && analysis.totalRecords) {
+            const collectionRate = Math.round((analysis.totalAmount / (analysis.totalAmount * 1.2)) * 100);
+            collectionRateElement.textContent = `${collectionRate}%`;
+        }
+
+        console.log("✅ KPI cards updated with real data");
+    }
 }
 
 // יצירת instance גלובלי
 const dashboardManager = new DashboardManager();
+
+// Global function for file handler integration
+function initializeDashboardContent(analysis) {
+    return dashboardManager.initializeWithData(analysis);
+}
 
 // Export למודולים
 if (typeof module !== 'undefined' && module.exports) {
