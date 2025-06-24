@@ -145,8 +145,13 @@ class DashboardManager {
             }
         ];
 
-        // Use real data if available, otherwise use sample data
-        return this.debtData.debts || sampleData;
+        // Fix: Add proper null checking and use sample data for now
+        if (this.debtData && this.debtData.debts) {
+            return this.debtData.debts;
+        }
+        
+        console.log("📋 Using sample debts data - real data structure not available yet");
+        return sampleData;
     }
 
     /**
@@ -180,7 +185,13 @@ class DashboardManager {
             }
         ];
 
-        return this.debtData.collections || sampleData;
+        // Fix: Add proper null checking and use sample data for now
+        if (this.debtData && this.debtData.collections) {
+            return this.debtData.collections;
+        }
+        
+        console.log("📋 Using sample collections data - real data structure not available yet");
+        return sampleData;
     }
 
     /**
@@ -602,6 +613,7 @@ class DashboardManager {
      */
     initializeWithData(analysis) {
         this.analysisResults = analysis;
+        this.debtData = analysis; // Fix: Set debtData for table access
         this.updateKPICards(analysis);
         this.initializeCollectionsTable();
         this.initializeAlerts();
