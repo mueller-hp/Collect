@@ -68,7 +68,7 @@ const sort_debts = (debts: DebtRecord[], sort: SortOptions): DebtRecord[] => {
     
     if (aValue === bValue) return 0;
     
-    const result = aValue < bValue ? -1 : 1;
+    const result = (aValue || 0) < (bValue || 0) ? -1 : 1;
     return sort.direction === 'asc' ? result : -result;
   });
 };
