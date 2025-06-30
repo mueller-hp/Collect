@@ -1,0 +1,182 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Sensitive data files (Israeli debt collection specific)
+*.xlsx
+*.xls
+*.csv
+data/
+uploads/
+customer-data/
+debt-records/
+export/
+reports/
+
+# Israeli customer information
+*customer*.json
+*debt*.json
+*client*.json
+*לקוח*.json
+*חוב*.json
+
+# Configuration files with sensitive data
+config/local.json
+config/production.json
+settings.local.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Mac specific
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Windows specific
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Linux specific
+*~
+
+# IDE specific
+*.swp
+*.swo
+*~
+
+# Test files with sensitive data
+test-data/
+mock-data/
+sample-data/
+fixtures/customer*
+fixtures/debt*
+
+# Generated reports and exports
+reports/
+exports/
+pdf-reports/
+excel-exports/
+
+# Local storage and cache
+.storage/
+.cache/
+localStorage/
+
+# Potential sensitive Israeli business files
+*תעודת-זהות*
+*ת-ז*
+*פרטי-לקוח*
+*נתוני-חוב*
+*דוח-גביה*

@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+}
+
+/* Hebrew Font Support */
+body {
+  font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  direction: rtl;
+}
+
+/* Custom Components */
+@layer components {
+  .btn-primary {
+    @apply bg-israeli-blue hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-success {
+    @apply bg-israeli-green hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-israeli-red hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md border border-gray-200 p-4;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-israeli-blue focus:border-transparent;
+  }
+  
+  .table-header {
+    @apply bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3;
+  }
+  
+  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right;
+  }
+}
+
+/* Israeli Currency Formatting */
+.currency-ils::before {
+  content: "₪";
+  margin-left: 4px;
+}
+
+/* Hebrew Number Formatting */
+.hebrew-number {
+  direction: ltr;
+  display: inline-block;
+  text-align: right;
+}
+
+/* Mobile First Responsive Design */
+@media (max-width: 640px) {
+  .mobile-hidden {
+    display: none;
+  }
+  
+  .mobile-full {
+    width: 100%;
+  }
+  
+  .mobile-scroll {
+    overflow-x: auto;
+  }
+}
+
+/* Loading Animation */
+.loading-spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #1e40af;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus Styles for Hebrew Interface */
+.focus-visible:focus {
+  outline: 2px solid #1e40af;
+  outline-offset: 2px;
+}
