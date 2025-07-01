@@ -159,7 +159,12 @@ export const check_touch_target_spacing = (container: HTMLElement) => {
     'button, a, input, select, textarea, [role="button"], [tabindex]'
   );
   
-  const issues = [];
+  const issues: Array<{
+    type: 'error' | 'warning' | 'info';
+    message: string;
+    suggestion: string;
+    elements?: HTMLElement[];
+  }> = [];
   const device = detect_device();
   
   if (!device.is_mobile) return issues;
@@ -200,7 +205,12 @@ export const check_horizontal_scroll = (): boolean => {
 
 // בדיקת תוכן שעלול לצאת מהמסך
 export const check_content_overflow = (container: HTMLElement = document.body) => {
-  const issues = [];
+  const issues: Array<{
+    type: 'error' | 'warning' | 'info';
+    message: string;
+    element: HTMLElement;
+    overflow_amount: number;
+  }> = [];
   const viewport_width = window.innerWidth;
   
   const all_elements = container.querySelectorAll('*');

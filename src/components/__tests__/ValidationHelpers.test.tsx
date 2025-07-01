@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '../../test-utils';
+import { render, screen } from '../../test-utils';
 import userEvent from '@testing-library/user-event';
-import { ValidatedField, IsraeliIdField, IsraeliPhoneField, CurrencyField, use_form_validation } from '../ValidationHelpers';
+import { ValidatedField, IsraeliIdField, IsraeliPhoneField, CurrencyField } from '../ValidationHelpers';
 
 describe('ValidationHelpers Components', () => {
   describe('ValidatedField', () => {

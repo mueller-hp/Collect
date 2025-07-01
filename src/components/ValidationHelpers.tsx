@@ -173,11 +173,7 @@ export const use_form_validation = (fields: Record<string, { value: string; type
     let is_valid = true;
 
     Object.entries(fields).forEach(([field_name, field_config]) => {
-      const validation_component = { 
-        value: field_config.value, 
-        type: field_config.type,
-        required: field_config.required || false 
-      } as ValidatedFieldProps;
+      // Basic validation without unused variable
       
       // כאן נוכל להשתמש באותה לוגיקת אימות
       // לצורך הדוגמה, נבצע אימות בסיסי

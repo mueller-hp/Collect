@@ -237,7 +237,6 @@ describe('Hebrew Search Utilities', () => {
     });
 
     it('combines scores from multiple terms', () => {
-      const singleTermResults = advanced_search(mockDebtRecords, 'ישראל');
       const multiTermResults = advanced_search(mockDebtRecords, 'ישראל משה');
       
       // Multi-term search should generally have different (often lower) scores

@@ -8,8 +8,7 @@ import {
   detect_device, 
   get_current_breakpoint, 
   run_mobile_audit, 
-  generate_mobile_report,
-  BREAKPOINTS 
+  generate_mobile_report
 } from '../utils/mobileUtils';
 
 interface ViewportSize {

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { use_debt_context, use_debt_actions } from '../contexts/DebtContext';
 import { DebtRecord } from '../types';
-import { get_text } from '../utils/localization';
-import { format_israeli_currency, format_israeli_date } from '../utils/formatting';
+import { format_israeli_currency } from '../utils/formatting';
 import { 
   smart_search, 
   advanced_search, 
@@ -53,7 +52,15 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
       customer_id: 2.0,
       phone: 1.5,
       collection_agent: 1.0,
-      notes: 0.5
+      notes: 0.5,
+      status: 1.0,
+      debt_amount: 1.0,
+      paid_amount: 1.0,
+      remaining_debt: 1.0,
+      due_date: 1.0,
+      last_payment_date: 0.5,
+      created_at: 0.5,
+      updated_at: 0.5
     },
     exact_match_boost: 4.0
   };
@@ -233,7 +240,7 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
             </svg>
           ) : (
             <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinecap="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           )}
         </div>

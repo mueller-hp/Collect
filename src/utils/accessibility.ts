@@ -246,7 +246,6 @@ export const run_accessibility_audit = (container: HTMLElement = document.body):
   ];
 
   // חישוב ציון נגישות
-  const total_checks = issues.length + 10; // נניח 10 בדיקות בסיסיות
   const errors = issues.filter(issue => issue.type === 'error').length;
   const warnings = issues.filter(issue => issue.type === 'warning').length;
   

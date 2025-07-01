@@ -49,7 +49,16 @@ const DEFAULT_OPTIONS: SearchOptions = {
     id_number: 1.5,
     customer_id: 1.5,
     phone: 1.0,
-    collection_agent: 0.8
+    collection_agent: 0.8,
+    status: 1.0,
+    debt_amount: 1.0,
+    paid_amount: 1.0,
+    remaining_debt: 1.0,
+    due_date: 1.0,
+    notes: 0.5,
+    created_at: 0.5,
+    updated_at: 0.5,
+    last_payment_date: 0.5
   },
   exact_match_boost: 3.0
 };
@@ -324,7 +333,7 @@ export const advanced_search = (
   
   // חישוב ציון משולב
   const finalResults: SearchResult[] = [];
-  commonRecords.forEach((termResults, recordId) => {
+  commonRecords.forEach((termResults) => {
     const avgScore = termResults.reduce((sum, result) => sum + result.score, 0) / termResults.length;
     const allMatchedFields = Array.from(new Set(termResults.flatMap(r => r.matched_fields)));
     const combinedHighlights: Record<string, string> = {};

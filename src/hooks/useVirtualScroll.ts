@@ -3,8 +3,8 @@
  * Virtual scrolling hook for large datasets
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { calculate_virtual_scroll, VirtualScrollParams, VirtualScrollResult } from '../utils/performance';
+import { useState, useCallback, useMemo } from 'react';
+import { calculate_virtual_scroll, VirtualScrollResult } from '../utils/performance';
 
 interface UseVirtualScrollProps {
   items: any[];

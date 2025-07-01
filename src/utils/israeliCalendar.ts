@@ -22,41 +22,6 @@ export interface BusinessDay {
 }
 
 /**
- * חגים ישראליים קבועים (לוח גרגוריאני)
- * Fixed Israeli holidays by Gregorian calendar
- */
-const FIXED_HOLIDAYS_2024: Omit<IsraeliHoliday, 'date'>[] = [
-  {
-    name: 'New Year',
-    hebrew_name: 'ראש השנה הגרגוריאנית',
-    type: 'national',
-    is_work_day: false,
-    description: 'חג אזרחי'
-  },
-  {
-    name: 'Independence Day',
-    hebrew_name: 'יום העצמאות',
-    type: 'national',
-    is_work_day: false,
-    description: 'יום העצמאות של מדינת ישראל'
-  },
-  {
-    name: 'Holocaust Remembrance Day',
-    hebrew_name: 'יום השואה והגבורה',
-    type: 'memorial',
-    is_work_day: true, // יום זיכרון אבל עדיין יום עבודה חלקי
-    description: 'יום זיכרון לשואה ולגבורה'
-  },
-  {
-    name: 'Memorial Day',
-    hebrew_name: 'יום הזיכרון לחללי מערכות ישראל',
-    type: 'memorial',
-    is_work_day: false,
-    description: 'יום הזיכרון לחללי מערכות ישראל ונפגעי פעולות האיבה'
-  }
-];
-
-/**
  * חגים עבריים נעים (נחושבים לפי לוח העברי)
  * Moving Hebrew holidays - approximated dates for 2024-2025
  */

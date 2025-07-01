@@ -3,7 +3,7 @@ import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
-    <Router basename={import.meta.env.PROD ? '/collect' : ''}>
+    <Router basename={process.env.NODE_ENV === 'production' ? '/collect' : ''}>
       <Dashboard />
     </Router>
   )

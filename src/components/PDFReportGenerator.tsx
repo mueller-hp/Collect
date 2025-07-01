@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { use_debt_context, use_debt_actions } from '../contexts/DebtContext';
-import { DebtRecord, PDFReportData, FilterOptions } from '../types';
+import { DebtRecord, PDFReportData } from '../types';
 import { get_text } from '../utils/localization';
 import { format_israeli_currency, format_israeli_date, calculate_debt_age } from '../utils/formatting';
 
@@ -14,8 +14,7 @@ type ReportType = 'summary' | 'detailed' | 'aging' | 'performance' | 'custom';
 
 const PDFReportGenerator: React.FC<PDFReportGeneratorProps> = ({
   selected_debts,
-  report_title = 'דוח גביית חובות',
-  include_charts = true
+  report_title = 'דוח גביית חובות'
 }) => {
   const { state } = use_debt_context();
   const { add_message } = use_debt_actions();

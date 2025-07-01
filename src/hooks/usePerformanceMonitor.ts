@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { performance_monitor, PerformanceMonitor } from '../utils/performance';
+import { performance_monitor } from '../utils/performance';
 
 interface PerformanceStats {
   count: number;

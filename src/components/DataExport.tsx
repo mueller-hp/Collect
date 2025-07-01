@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { use_debt_context, use_debt_actions } from '../contexts/DebtContext';
 import { DebtRecord } from '../types';
 import { get_text } from '../utils/localization';
-import { format_israeli_currency, format_israeli_date } from '../utils/formatting';
+import { format_israeli_date } from '../utils/formatting';
 
 interface DataExportProps {
   selected_records?: DebtRecord[];

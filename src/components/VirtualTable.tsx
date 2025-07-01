@@ -29,8 +29,7 @@ const VirtualTable: React.FC<VirtualTableProps> = ({
   container_height = 400,
   item_height = 60,
   on_row_click,
-  selected_ids = [],
-  show_pagination = false
+  selected_ids = []
 }) => {
   
   // הגדרת עמודות הטבלה

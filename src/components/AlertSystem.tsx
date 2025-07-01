@@ -27,7 +27,7 @@ const AlertSystem: React.FC<AlertSystemProps> = ({
   auto_dismiss_time = 5000
 }) => {
   const { state } = use_debt_context();
-  const { set_alerts, add_message } = use_debt_actions();
+  const { set_alerts } = use_debt_actions();
   
   const [floating_alerts, set_floating_alerts] = useState<Alert[]>([]);
   const [alert_rules, set_alert_rules] = useState<AlertRule[]>([]);
