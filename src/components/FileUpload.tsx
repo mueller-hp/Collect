@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import Papa from 'papaparse';
 import { get_text } from '../utils/localization';
 import { FileUploadResult, ImportedData } from '../types';
 
@@ -127,32 +128,80 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const read_file = (file: File): Promise<{ headers: string[], rows: any[][] }> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        try {
-          const content = e.target?.result as string;
-          
-          if (file.name.toLowerCase().endsWith('.csv')) {
-            // עיבוד קובץ CSV
-            const lines = content.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-            const rows = lines.slice(1)
-              .filter(line => line.trim())
-              .map(line => line.split(',').map(cell => cell.trim().replace(/"/g, '')));
-            
-            resolve({ headers, rows });
-          } else {
-            // עיבוד קובץ Excel יטופל בשלב הבא עם Papa Parse
-            reject(new Error('פורמט קובץ Excel יטופל בגרסה הבאה'));
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        // עיבוד קובץ CSV עם Papa Parse
+        Papa.parse(file, {
+          header: false,
+          complete: (results) => {
+            try {
+              if (results.errors.length > 0) {
+                reject(new Error(`שגיאות בקובץ CSV: ${results.errors.map(e => e.message).join(', ')}`));
+                return;
+              }
+              
+              const data = results.data as string[][];
+              if (data.length === 0) {
+                reject(new Error('הקובץ ריק'));
+                return;
+              }
+              
+              const headers = data[0].map(h => h.trim());
+              const rows = data.slice(1).filter(row => row.some(cell => cell && cell.trim()));
+              
+              resolve({ headers, rows });
+            } catch (error) {
+              reject(error);
+            }
+          },
+          error: (error: any) => {
+            reject(new Error(`שגיאה בקריאת קובץ CSV: ${error.message}`));
           }
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = () => reject(new Error('שגיאה בקריאת הקובץ'));
-      reader.readAsText(file, 'utf-8');
+        });
+      } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+        // עיבוד קובץ Excel עם Papa Parse
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          try {
+            const content = e.target?.result as string;
+            
+            Papa.parse(content, {
+              header: false,
+              complete: (results) => {
+                try {
+                  if (results.errors.length > 0) {
+                    reject(new Error(`שגיאות בקובץ Excel: ${results.errors.map(e => e.message).join(', ')}`));
+                    return;
+                  }
+                  
+                  const data = results.data as string[][];
+                  if (data.length === 0) {
+                    reject(new Error('הקובץ ריק'));
+                    return;
+                  }
+                  
+                  const headers = data[0].map(h => h.trim());
+                  const rows = data.slice(1).filter(row => row.some(cell => cell && cell.trim()));
+                  
+                  resolve({ headers, rows });
+                } catch (error) {
+                  reject(error);
+                }
+              },
+              error: (error: any) => {
+                reject(new Error(`שגיאה בקריאת קובץ Excel: ${error.message}`));
+              }
+            });
+          } catch (error) {
+            reject(error);
+          }
+        };
+        
+        reader.onerror = () => reject(new Error('שגיאה בקריאת הקובץ'));
+        reader.readAsText(file, 'utf-8');
+      } else {
+        reject(new Error('פורמט קובץ לא נתמך'));
+      }
     });
   };
 
