@@ -1,29 +1,43 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { use_debt_context, use_debt_actions } from '../contexts/DebtContext';
 import { DebtRecord, SortOptions } from '../types';
 import { get_text } from '../utils/localization';
 import { format_israeli_currency, format_israeli_date, format_israeli_phone } from '../utils/formatting';
+import VirtualTable from './VirtualTable';
+import { use_performance_monitor } from '../hooks/usePerformanceMonitor';
 
 interface DebtDataTableProps {
   show_actions?: boolean;
   on_edit_debt?: (debt: DebtRecord) => void;
   on_delete_debt?: (debt_id: string) => void;
+  use_virtual_scroll?: boolean;
+  virtual_container_height?: number;
 }
 
 const DebtDataTable: React.FC<DebtDataTableProps> = ({
   show_actions = true,
   on_edit_debt,
-  on_delete_debt
+  on_delete_debt,
+  use_virtual_scroll = false,
+  virtual_container_height = 600
 }) => {
   const { state } = use_debt_context();
   const { set_sort, set_pagination } = use_debt_actions();
+  const { measure } = use_performance_monitor();
   
   const { filtered_debts, sort, pagination, loading } = state;
+
+  // אוטו-זיהוי צורך בגלילה וירטואלית
+  const should_use_virtual = use_virtual_scroll || filtered_debts.length > 1000;
 
   // חישוב רשומות לעמוד נוכחי
   const start_index = (pagination.page - 1) * pagination.per_page;
   const end_index = start_index + pagination.per_page;
-  const current_page_debts = filtered_debts.slice(start_index, end_index);
+  const current_page_debts = useMemo(() => 
+    measure('debt_table_pagination', () => 
+      filtered_debts.slice(start_index, end_index)
+    ), [filtered_debts, start_index, end_index, measure]
+  );
   const total_pages = Math.ceil(pagination.total / pagination.per_page);
 
   // פונקציה לטיפול במיון
@@ -85,6 +99,29 @@ const DebtDataTable: React.FC<DebtDataTableProps> = ({
     return (
       <div className="text-center py-12">
         <div className="text-gray-500 text-lg">{get_text('no_data')}</div>
+      </div>
+    );
+  }
+
+  // שימוש בטבלה וירטואלית למערכי נתונים גדולים
+  if (should_use_virtual) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm text-blue-800">
+              טבלה מתקדמת - מוצגות {filtered_debts.length.toLocaleString()} רשומות עם אופטימיזציה לביצועים
+            </span>
+          </div>
+        </div>
+        <VirtualTable
+          data={filtered_debts}
+          container_height={virtual_container_height}
+          on_row_click={on_edit_debt}
+        />
       </div>
     );
   }

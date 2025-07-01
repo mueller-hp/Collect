@@ -4,6 +4,8 @@ import FileUpload from '../components/FileUpload';
 import KPIDashboard from '../components/KPIDashboard';
 import DebtAgingChart from '../components/DebtAgingChart';
 import CollectionPerformanceChart from '../components/CollectionPerformanceChart';
+import PerformanceDashboard from '../components/PerformanceDashboard';
+import MobileTestingPanel from '../components/MobileTestingPanel';
 import { ImportedData, FileUploadResult, DebtRecord } from '../types';
 import { process_imported_data, auto_detect_column_mapping } from '../utils/dataProcessing';
 
@@ -321,6 +323,12 @@ const Dashboard: React.FC = () => {
         )}
 
       </main>
+
+      {/* לוח בקרת ביצועים */}
+      <PerformanceDashboard />
+      
+      {/* פאנל בדיקות מובייל */}
+      <MobileTestingPanel />
 
       {/* מודל העלאת קובץ */}
       {show_upload_modal && (
