@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { get_text } from '../utils/localization';
+import { use_debt_context, use_debt_actions } from '../contexts/DebtContext';
 import FileUpload from '../components/FileUpload';
 import KPIDashboard from '../components/KPIDashboard';
 import DebtAgingChart from '../components/DebtAgingChart';
@@ -9,12 +10,21 @@ import MobileTestingPanel from '../components/MobileTestingPanel';
 import { ImportedData, FileUploadResult, DebtRecord } from '../types';
 import { process_imported_data, auto_detect_column_mapping } from '../utils/dataProcessing';
 
+type MainTab = 'dashboard' | 'customers' | 'reports' | 'settings';
+type DashboardTab = 'overview' | 'aging' | 'performance';
+
 const Dashboard: React.FC = () => {
+  const { state } = use_debt_context();
+  const { set_debts, add_message } = use_debt_actions();
+  
   const [uploaded_data, set_uploaded_data] = useState<ImportedData | null>(null);
   const [upload_result, set_upload_result] = useState<FileUploadResult | null>(null);
-  const [processed_records, set_processed_records] = useState<DebtRecord[]>([]);
   const [show_upload_modal, set_show_upload_modal] = useState(false);
-  const [active_tab, set_active_tab] = useState<'overview' | 'aging' | 'performance'>('overview');
+  const [active_main_tab, set_active_main_tab] = useState<MainTab>('dashboard');
+  const [active_dashboard_tab, set_active_dashboard_tab] = useState<DashboardTab>('overview');
+  
+  // Use debts from context instead of local state
+  const processed_records = state.debts;
 
   const handle_file_uploaded = (data: ImportedData) => {
     set_uploaded_data(data);
@@ -48,7 +58,17 @@ const Dashboard: React.FC = () => {
           record.remaining_debt = record.debt_amount - record.paid_amount;
         });
         
-        set_processed_records(sample_records);
+        // Store records in context instead of local state
+        set_debts(sample_records);
+        
+        // Add success message
+        add_message({
+          id: Date.now().toString(),
+          type: 'success',
+          title: 'הצלחה',
+          message: `הקובץ הועלה בהצלחה עם ${sample_records.length} רשומות`,
+          timestamp: new Date()
+        });
       }
     } catch (error) {
       console.error('שגיאה בעיבוד הנתונים:', error);
@@ -94,31 +114,59 @@ const Dashboard: React.FC = () => {
       <nav className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 space-x-reverse overflow-x-auto">
-            <button className="py-2 px-1 border-b-2 border-israeli-blue text-israeli-blue font-medium text-sm whitespace-nowrap">
+            <button 
+              onClick={() => set_active_main_tab('dashboard')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                active_main_tab === 'dashboard' 
+                  ? 'border-israeli-blue text-israeli-blue' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
               {get_text('dashboard')}
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap">
+            <button 
+              onClick={() => set_active_main_tab('customers')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                active_main_tab === 'customers' 
+                  ? 'border-israeli-blue text-israeli-blue' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
               {get_text('customers')}
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap">
+            <button 
+              onClick={() => set_active_main_tab('reports')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                active_main_tab === 'reports' 
+                  ? 'border-israeli-blue text-israeli-blue' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
               {get_text('reports')}
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap">
+            <button 
+              onClick={() => set_active_main_tab('settings')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                active_main_tab === 'settings' 
+                  ? 'border-israeli-blue text-israeli-blue' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
               {get_text('settings')}
             </button>
           </div>
         </div>
       </nav>
 
-      {/* תפריט משני - רק אם יש נתונים */}
-      {processed_records.length > 0 && (
+      {/* תפריט משני - רק אם יש נתונים ואנחנו בלוח הבקרה */}
+      {processed_records.length > 0 && active_main_tab === 'dashboard' && (
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex space-x-6 space-x-reverse overflow-x-auto">
               <button
-                onClick={() => set_active_tab('overview')}
+                onClick={() => set_active_dashboard_tab('overview')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  active_tab === 'overview' 
+                  active_dashboard_tab === 'overview' 
                     ? 'border-blue-500 text-blue-600' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
@@ -126,9 +174,9 @@ const Dashboard: React.FC = () => {
                 סקירה כללית
               </button>
               <button
-                onClick={() => set_active_tab('aging')}
+                onClick={() => set_active_dashboard_tab('aging')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  active_tab === 'aging' 
+                  active_dashboard_tab === 'aging' 
                     ? 'border-blue-500 text-blue-600' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
@@ -136,9 +184,9 @@ const Dashboard: React.FC = () => {
                 התיישנות חובות
               </button>
               <button
-                onClick={() => set_active_tab('performance')}
+                onClick={() => set_active_dashboard_tab('performance')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  active_tab === 'performance' 
+                  active_dashboard_tab === 'performance' 
                     ? 'border-blue-500 text-blue-600' 
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
@@ -220,7 +268,7 @@ const Dashboard: React.FC = () => {
         {/* תוכן לפי טאב נבחר */}
         {processed_records.length > 0 && (
           <div className="space-y-6 lg:space-y-8">
-            {active_tab === 'overview' && (
+            {active_dashboard_tab === 'overview' && (
               <>
                 {/* KPI Dashboard */}
                 <div className="mb-6 lg:mb-8">
@@ -235,7 +283,7 @@ const Dashboard: React.FC = () => {
               </>
             )}
 
-            {active_tab === 'aging' && (
+            {active_dashboard_tab === 'aging' && (
               <div className="space-y-6 lg:space-y-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                   <DebtAgingChart debt_records={processed_records} chart_type="bar" />
@@ -278,7 +326,7 @@ const Dashboard: React.FC = () => {
               </div>
             )}
 
-            {active_tab === 'performance' && (
+            {active_dashboard_tab === 'performance' && (
               <div className="space-y-6 lg:space-y-8">
                 <CollectionPerformanceChart debt_records={processed_records} />
                 
@@ -350,8 +398,14 @@ const Dashboard: React.FC = () => {
               on_file_uploaded={(data) => {
                 handle_file_uploaded(data);
                 set_show_upload_modal(false);
+                set_active_main_tab('dashboard');
               }}
-              on_upload_result={handle_upload_result}
+              on_upload_result={(result) => {
+                handle_upload_result(result);
+                if (result.success) {
+                  set_active_main_tab('dashboard');
+                }
+              }}
             />
           </div>
         </div>
